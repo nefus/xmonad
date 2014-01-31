@@ -1,0 +1,63 @@
+import XMonad
+import XMonad.Actions.WindowBringer
+import XMonad.Actions.UpdatePointer
+import XMonad.Actions.FindEmptyWorkspace
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.ManageDocks
+import XMonad.Layout.Grid
+import XMonad.Layout.Spiral
+import XMonad.Layout.MagicFocus
+import XMonad.Layout.NoBorders
+import XMonad.Util.Dmenu
+import XMonad.Util.Run(spawnPipe)
+import System.Exit
+import Control.Monad
+import Data.Ratio
+import qualified Data.Map as M
+
+confirmQuit :: X()
+confirmQuit = do
+	let m = "confirm quit"
+	s <- dmenu [m]
+	-- when (m == s) (io exitSuccess)
+	when (m == s) (spawn "xfce4-session-logout")
+
+
+-- myLayouts = Tall 1 (2 % 100) (5 % 8) ||| Mirror (spiral (3 % 4)) ||| Grid ||| noBorders Full
+myLayouts = avoidStruts (tall_eq ||| Mirror (spiral (3 % 4)) ||| noBorders Full) 
+	where
+--	tall = Tall num_master scroll_step (17 % 32)
+	tall_eq = Tall num_master scroll_step (1 % 2)
+	num_master = 1
+	scroll_step = 2 % 100
+
+myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
+	     [ 	  ((modm .|. shiftMask, xK_l  ), spawn "xscreensaver-command -lock")
+		, ((modm .|. shiftMask, xK_g  ), gotoMenu)
+		, ((modm .|. shiftMask, xK_b  ), bringMenu)
+		, ((modm	      ,	xK_m  ), viewEmptyWorkspace)
+		, ((modm .|. shiftMask, xK_m  ), tagToEmptyWorkspace)
+		, ((modm              , xK_b  ), sendMessage ToggleStruts)
+		, ((modm              , xK_plus), spawn "amixer set Master 5%+")
+		, ((modm              , xK_minus), spawn "amixer set Master 5%-")
+		, ((modm .|. shiftMask, xK_p),   spawn "dmenu_run")
+		, ((modm .|. shiftMask, xK_t),   spawn "echo $PATH | dmenu")
+		, ((modm .|. shiftMask, xK_q),   confirmQuit)
+             ]
+
+
+main = do
+--	xmproc <- spawnPipe "/usr/bin/xmobar --screen=0 ~/.xmonad/xmobarrc.hs"
+	xmonad defaultConfig
+		{ keys = myKeys <+> keys defaultConfig
+		, modMask = mod4Mask
+		-- , terminal = "xterm -fn terminus-16"
+		, terminal = "x-terminal-emulator"
+		, handleEventHook = ewmhDesktopsEventHook
+		, layoutHook = myLayouts
+		, logHook = ewmhDesktopsLogHook
+		, manageHook = manageDocks <+> manageHook defaultConfig
+		, startupHook = ewmhDesktopsStartup
+		}
+
