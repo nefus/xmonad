@@ -1,13 +1,9 @@
 import XMonad
 import XMonad.Actions.WindowBringer
 import XMonad.Actions.UpdatePointer
-import XMonad.Actions.FindEmptyWorkspace
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
-import XMonad.Layout.Grid
-import XMonad.Layout.Spiral
-import XMonad.Layout.MagicFocus
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.NoBorders
 import XMonad.Util.Dmenu
@@ -25,8 +21,7 @@ confirmQuit = do
 	when (m == s) (spawn "xfce4-session-logout")
 
 
--- myLayouts = Tall 1 (2 % 100) (5 % 8) ||| Mirror (spiral (3 % 4)) ||| Grid ||| noBorders Full
-myLayouts = avoidStruts (resizable_tall ||| Mirror (spiral spiral_ratio) ||| noBorders Full) 
+myLayouts = avoidStruts (resizable_tall ||| Mirror (resizable_tall) ||| noBorders Full) 
 	where
 --	tall = Tall num_master scroll_step (17 % 32)
 	tall_eq = Tall num_master scroll_step (1 % 2)
@@ -38,17 +33,14 @@ myLayouts = avoidStruts (resizable_tall ||| Mirror (spiral spiral_ratio) ||| noB
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
 	     [ 	  ((modm .|. shiftMask, xK_l  ), spawn "xscreensaver-command -lock")
-		, ((modm              , xK_a  ), sendMessage MirrorShrink)
-		, ((modm              , xK_y  ), sendMessage MirrorExpand)
+		, ((modm              , xK_y  ), sendMessage MirrorShrink)
+		, ((modm              , xK_a  ), sendMessage MirrorExpand)
 		, ((modm .|. shiftMask, xK_g  ), gotoMenu)
 		, ((modm .|. shiftMask, xK_b  ), bringMenu)
-		, ((modm	      ,	xK_m  ), viewEmptyWorkspace)
-		, ((modm .|. shiftMask, xK_m  ), tagToEmptyWorkspace)
 		, ((modm              , xK_b  ), sendMessage ToggleStruts)
 		, ((modm              , xK_plus), spawn "amixer set Master 5%+")
 		, ((modm              , xK_minus), spawn "amixer set Master 5%-")
 		, ((modm .|. shiftMask, xK_p),   spawn "dmenu_run")
-		, ((modm .|. shiftMask, xK_t),   spawn "echo $PATH | dmenu")
 		, ((modm .|. shiftMask, xK_q),   confirmQuit)
              ]
 
