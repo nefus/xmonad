@@ -8,6 +8,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Layout.Grid
 import XMonad.Layout.Spiral
 import XMonad.Layout.MagicFocus
+import XMonad.Layout.ResizableTile
 import XMonad.Layout.NoBorders
 import XMonad.Util.Dmenu
 import XMonad.Util.Run(spawnPipe)
@@ -25,15 +26,20 @@ confirmQuit = do
 
 
 -- myLayouts = Tall 1 (2 % 100) (5 % 8) ||| Mirror (spiral (3 % 4)) ||| Grid ||| noBorders Full
-myLayouts = avoidStruts (tall_eq ||| Mirror (spiral (3 % 4)) ||| noBorders Full) 
+myLayouts = avoidStruts (resizable_tall ||| Mirror (spiral spiral_ratio) ||| noBorders Full) 
 	where
 --	tall = Tall num_master scroll_step (17 % 32)
 	tall_eq = Tall num_master scroll_step (1 % 2)
+	resizable_tall = ResizableTall num_master scroll_step frac []
 	num_master = 1
 	scroll_step = 2 % 100
+	spiral_ratio = 3 % 4
+	frac = 1 % 2
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
 	     [ 	  ((modm .|. shiftMask, xK_l  ), spawn "xscreensaver-command -lock")
+		, ((modm              , xK_a  ), sendMessage MirrorShrink)
+		, ((modm              , xK_y  ), sendMessage MirrorExpand)
 		, ((modm .|. shiftMask, xK_g  ), gotoMenu)
 		, ((modm .|. shiftMask, xK_b  ), bringMenu)
 		, ((modm	      ,	xK_m  ), viewEmptyWorkspace)
