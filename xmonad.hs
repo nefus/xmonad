@@ -17,7 +17,6 @@ confirmQuit :: X()
 confirmQuit = do
 	let m = "confirm quit"
 	s <- dmenu [m]
-	-- when (m == s) (io exitSuccess)
 	when (m == s) (spawn "xfce4-session-logout")
 
 
