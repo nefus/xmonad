@@ -1,3 +1,4 @@
+import Data.Map as M (fromList,union, Map())
 import XMonad
 import XMonad.Actions.WindowBringer
 import XMonad.Actions.UpdatePointer
@@ -6,6 +7,7 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.NoBorders
+import XMonad.StackSet as W (focusUp, focusDown, sink)
 import XMonad.Util.Dmenu
 import XMonad.Util.Run(spawnPipe)
 import System.Exit
@@ -42,7 +44,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
 		, ((modm .|. shiftMask, xK_p),   spawn "dmenu_run")
 		, ((modm .|. shiftMask, xK_q),   confirmQuit)
              ]
-
+myManageHook = composeAll [
+	className =? "Firefox" --> doShift "1",
+	className =? "Thunderbird" --> doShift "1"
+	className =? "Eclipse" --> doShift "2",
+	className =? "Pidgin"  --> doShift "7",
+	]
 
 main = do
 --	xmproc <- spawnPipe "/usr/bin/xmobar --screen=0 ~/.xmonad/xmobarrc.hs"
@@ -54,7 +61,7 @@ main = do
 		, handleEventHook = ewmhDesktopsEventHook
 		, layoutHook = myLayouts
 		, logHook = ewmhDesktopsLogHook
-		, manageHook = manageDocks <+> manageHook defaultConfig
+		, manageHook = manageDocks <+> myManageHook <+>  manageHook defaultConfig
 		, startupHook = ewmhDesktopsStartup
 		}
 
