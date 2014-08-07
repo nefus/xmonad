@@ -1,5 +1,6 @@
 import Data.Map as M (fromList,union, Map())
 import XMonad
+import XMonad.Actions.CopyWindow
 import XMonad.Actions.WindowBringer
 import XMonad.Actions.UpdatePointer
 import XMonad.Hooks.DynamicLog
@@ -43,12 +44,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
 		, ((modm              , xK_minus), spawn "amixer set Master 5%-")
 		, ((modm .|. shiftMask, xK_p),   spawn "dmenu_run")
 		, ((modm .|. shiftMask, xK_q),   confirmQuit)
+		, ((modm	      , xK_v),   windows copyToAll) -- @@ Make focused window always visible
+		, ((modm .|. shiftMask, xK_v),   killAllOtherCopies)  -- @@ Toggle window state back
              ]
 myManageHook = composeAll [
 	className =? "Firefox" --> doShift "1",
-	className =? "Thunderbird" --> doShift "1"
+	className =? "Thunderbird" --> doShift "1",
 	className =? "Eclipse" --> doShift "2",
-	className =? "Pidgin"  --> doShift "7",
+	className =? "Pidgin"  --> doShift "7"
 	]
 
 main = do
