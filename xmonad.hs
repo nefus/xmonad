@@ -23,7 +23,7 @@ confirmQuit = do
 	when (m == s) (spawn "xfce4-session-logout")
 
 
-myLayouts = avoidStruts (resizable_tall ||| Mirror (resizable_tall) ||| noBorders Full) 
+myLayouts = avoidStruts (noBorders Full ||| resizable_tall ||| Mirror (resizable_tall)) 
 	where
 --	tall = Tall num_master scroll_step (17 % 32)
 	tall_eq = Tall num_master scroll_step (1 % 2)
@@ -64,7 +64,7 @@ main = do
 		, handleEventHook = ewmhDesktopsEventHook
 		, layoutHook = myLayouts
 		, logHook = ewmhDesktopsLogHook
-		, manageHook = manageDocks <+> manageHook defaultConfig  -- <+> myManageHook 
+		, manageHook = manageDocks <+> manageHook defaultConfig  <+> myManageHook 
 		, startupHook = ewmhDesktopsStartup
 		}
 
