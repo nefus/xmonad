@@ -46,9 +46,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
              ]
 myManageHook = composeAll [
 	className =? "Firefox" --> doShift "1",
-	className =? "Thunderbird" --> doShift "1"
+	className =? "Thunderbird" --> doShift "1",
 	className =? "Eclipse" --> doShift "2",
-	className =? "Pidgin"  --> doShift "7",
+	className =? "Pidgin"  --> doShift "7"
 	]
 
 main = do
