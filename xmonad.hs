@@ -64,7 +64,7 @@ main = do
 		, handleEventHook = ewmhDesktopsEventHook
 		, layoutHook = myLayouts
 		, logHook = ewmhDesktopsLogHook
-		, manageHook = manageDocks <+> myManageHook <+>  manageHook defaultConfig
+		, manageHook = manageDocks <+> manageHook defaultConfig  -- <+> myManageHook 
 		, startupHook = ewmhDesktopsStartup
 		}
 
