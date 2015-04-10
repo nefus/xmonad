@@ -1,0 +1,3 @@
+export $(dbus-launch) 
+gnome-keyring-daemon --start --components=gpg,pks11,secrets,ssh 
+export $(gnome-keyring-daemon -r --components=gpg,pks11,secrets,ssh) 
