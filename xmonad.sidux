@@ -1,0 +1,169 @@
+--
+-- xmonad example config file.
+--
+-- A template showing all available configuration hooks,
+-- and how to override the defaults in your own xmonad.hs conf file.
+--
+-- Normally, you'd only override those defaults you care about.
+--
+
+import XMonad
+import System.Exit
+
+import XMonad.Actions.WindowBringer
+
+import XMonad.Layout.NoBorders
+import XMonad.Layout.TwoPane
+import XMonad.Layout.WindowNavigation
+
+--- import XMonad.Layout.Circle
+import XMonad.Layout.DragPane
+import XMonad.Layout.Tabbed
+import XMonad.Layout.TwoPane
+import XMonad.Layout.ResizableTile
+
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops
+
+import XMonad.Actions.CycleWS
+
+--- 
+
+import qualified XMonad.StackSet as W
+import qualified Data.Map        as M
+
+-- The preferred terminal program, which is used in a binding below and by
+-- certain contrib modules.
+--
+myTerminal      = "x-terminal-emulator"
+myBorderWidth   = 1
+myModMask       = mod4Mask
+myNumlockMask   = mod2Mask
+myWorkspaces = map show [1..9]
+myNormalBorderColor  = "#693"
+myFocusedBorderColor = "#936"
+
+myDefaultGaps = [(0,25,0,0)]
+
+------------------------------------------------------------------------
+-- Key bindings. Add, modify or remove key bindings here.
+--
+myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
+     [ ((modMask .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
+     , ((modMask .|. shiftMask, xK_p     ), spawn "exe=`wmctrl -l  | zenity --list --column  tasks | cut -d' ' -f1` && wmctrl -ia $exe")
+--     , ((modMask,               xK_p     ), spawn "exe=`dmenu_path | dmenu` && eval \"exec $exe\"")
+     , ((modMask,               xK_p     ), spawn "gmrun")
+     , ((modMask .|. shiftMask, xK_c     ), kill)
+     , ((modMask .|. shiftMask, xK_g     ), gotoMenu)
+     , ((modMask .|. shiftMask, xK_b     ), bringMenu)
+     , ((modMask,               xK_space ), sendMessage NextLayout)
+     , ((modMask .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
+     , ((modMask,               xK_n     ), refresh)
+     , ((modMask,               xK_Tab   ), windows W.focusDown)
+     , ((modMask,               xK_j     ), windows W.focusDown)
+     , ((modMask,               xK_k     ), windows W.focusUp  )
+     , ((modMask,               xK_Right ), windows W.focusDown)
+     , ((modMask,               xK_Left  ), windows W.focusUp  )
+
+     , ((modMask,               xK_m     ), windows W.focusMaster  )
+     , ((modMask,               xK_Return), windows W.swapMaster)
+     , ((modMask .|. shiftMask, xK_j     ), windows W.swapDown  )
+     , ((modMask .|. shiftMask, xK_k     ), windows W.swapUp    )
+     , ((modMask,               xK_h     ), sendMessage Shrink)
+     , ((modMask,               xK_l     ), sendMessage Expand)
+     , ((modMask,               xK_t     ), withFocused $ windows . W.sink)
+     , ((modMask              , xK_comma ), sendMessage (IncMasterN 1))
+     , ((modMask              , xK_period), sendMessage (IncMasterN (-1)))
+     , ((modMask .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
+     , ((modMask              , xK_q     ), restart "xmonad" True)
+     
+
+     -- a basic CycleWS setup
+     , ((modMask ,               xK_Down),  nextWS)
+     , ((modMask ,               xK_Up),    prevWS)
+     , ((modMask  .|. shiftMask, xK_Down),  shiftToNext)
+     , ((modMask  .|. shiftMask, xK_Up),    shiftToPrev)
+--     , ((modMask ,               xK_Right), nextScreen)
+--     , ((modMask ,               xK_Left),  prevScreen)
+     , ((modMask  .|. shiftMask, xK_Right), shiftNextScreen)
+     , ((modMask  .|. shiftMask, xK_Left),  shiftPrevScreen)
+     --   , ((modMask ,               xK_z),     toggleWS)
+     , ((modMask ,               xK_a),     sendMessage MirrorShrink)
+     , ((modMask ,               xK_z),     sendMessage MirrorExpand)
+     , ((modMask .|. shiftMask, xK_l), spawn "xscreensaver-command -lock")
+     , ((modMask, xK_Print), spawn "import -window root $HOME/xwd-$(date +%s)$$.png")
+     ]
+     ++
+     [((m .|. modMask, k), windows $ f i)
+      | (i, k) <- zip (XMonad.workspaces conf) [0x26,0xe9,0x22,0x27,0x28,0x2d,0xe8,0x5f,0xe7,0xe0,xK_a,xK_z,xK_e,xK_r]
+     , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
+     ++
+     [((m .|. modMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
+          | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
+     , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
+
+
+
+
+myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
+    [ ((modMask, button1), (\w -> focus w >> mouseMoveWindow w))
+    , ((modMask, button2), (\w -> focus w >> windows W.swapMaster))
+    , ((modMask, button3), (\w -> focus w >> mouseResizeWindow w))
+    ]
+
+myLayout = avoidStruts $ noBorders Full ||| smartBorders tiled ||| Mirror tiled
+-- myLayout = ewmhDesktopsLayout $ avoidStruts $ hintedTile Wide ||| noBorders Full
+-- myLayout = ewmhDesktopsLayout $ tiled ||| Mirror tiled |||  Full 
+  where
+     tiled   = ResizableTall nmaster delta ratio []
+     twopane = TwoPane delta ratio
+     nmaster = 1
+     ratio   = 1/2
+     delta   = 5/100
+
+myManageHook = composeAll
+    [ className =? "MPlayer"        --> doFloat
+    , className =? "Gimp"           --> doFloat
+    , className =? "XBoard"         --> doFloat 
+    , className =? "Gnome-volume-control" --> doFloat
+    , resource  =? "desktop_window" --> doIgnore
+    , resource  =? "kdesktop"       --> doIgnore ] 
+    <+> manageDocks
+
+myFocusFollowsMouse :: Bool
+myFocusFollowsMouse = True
+
+myLogHook = ewmhDesktopsLogHook
+
+myStartupHook = do
+-- spawn "yes | emacs --daemon"
+-- spawn "setxkbmap -option compose:caps"
+--  spawn "kmix --keepvisibility"
+  spawn "x-terminal-emulator"
+  spawn "xscreensaver -no-splash"
+--  spawn "tint2"
+  spawn "lxpanel"
+
+main = xmonad $ ewmh defaults
+
+defaults = defaultConfig {
+      -- simple stuff
+        terminal           = myTerminal,
+        focusFollowsMouse  = myFocusFollowsMouse,
+        borderWidth        = myBorderWidth,
+        modMask            = myModMask,
+        numlockMask        = myNumlockMask,
+        workspaces         = myWorkspaces,
+        normalBorderColor  = myNormalBorderColor,
+        focusedBorderColor = myFocusedBorderColor,
+--         defaultGaps        = myDefaultGaps,
+      -- key bindings
+        keys               = myKeys,
+        mouseBindings      = myMouseBindings,
+      -- hooks, layouts
+        layoutHook         = myLayout,
+        manageHook         = myManageHook <+> manageDocks,
+        logHook            = myLogHook,
+        startupHook        = myStartupHook
+    }
