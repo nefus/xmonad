@@ -8,6 +8,7 @@ import XMonad.Actions.Commands
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.SetWMName
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.NoBorders
 import XMonad.Layout.TwoPane
@@ -43,8 +44,8 @@ commands :: X [(String, X())]
 commands = defaultCommands
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
-	     [ 	  ((modm .|. shiftMask, xK_l  ), spawn "slock")
-		--   ((modm .|. shiftMask, xK_l  ), spawn "xscreensaver-command -lock")
+	     [ 	 -- ((modm .|. shiftMask, xK_l  ), spawn "slock")
+		((modm .|. shiftMask, xK_l  ), spawn "xscreensaver-command -lock")
 		, ((modm              , xK_y  ), sendMessage MirrorShrink)
 		, ((modm              , xK_a  ), sendMessage MirrorExpand)
 		, ((modm .|. shiftMask, xK_g  ), gotoMenu)
@@ -67,7 +68,7 @@ myManageHook = composeAll [
 	--	className =? "Pidgin"  --> doShift "7"
 	-- WM_WINDOW_ROLE(STRING) = "AlarmWindow"
 --	isInfixOf "Reminder" title --> doFloat
-	title =?? "Reminder" --> doFloat
+	title =?? "Reminder" --> doFloat 
  	]
 
 
@@ -86,6 +87,6 @@ main = do
 		, layoutHook = myLayouts
 		, logHook = ewmhDesktopsLogHook
 		, manageHook = manageDocks <+> manageHook defaultConfig  <+> myManageHook 
-		, startupHook = ewmhDesktopsStartup
+		, startupHook = setWMName "LG3D" <+> ewmhDesktopsStartup
 		}
 
