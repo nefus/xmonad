@@ -2,6 +2,7 @@ import Data.Map as M (fromList,union, Map())
 import Data.List
 import XMonad
 import XMonad.Actions.CopyWindow
+import XMonad.Actions.CycleWindows
 import XMonad.Actions.WindowBringer
 import XMonad.Actions.UpdatePointer
 import XMonad.Actions.Commands
@@ -60,6 +61,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
 		, ((modm	      , xK_v),   windows copyToAll) -- @@ Make focused window always visible
 		, ((modm .|. shiftMask, xK_v),   killAllOtherCopies)  -- @@ Toggle window state back
 		, ((modm .|. controlMask, xK_v),   spawn "xclip -o -selection clipboard")
+		, ((modm , xK_Return), rotFocusedUp)
+		, ((modm .|. controlMask, xK_Return), rotUnfocusedUp)
              ]
 myManageHook = composeAll [
 	--className =? "Firefox" --> doShift "1",
