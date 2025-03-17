@@ -8,14 +8,16 @@ import XMonad.Config.Desktop
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
-import XMonad.Layout.Hidden
+-- import XMonad.Layout.Hidden
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ResizableTile
 import XMonad.StackSet as W
 import XMonad.Util.Dmenu
+
 import qualified Data.Map as M
+
 
 main = xmonad $ ewmhFullscreen $ ewmh xfceConfig {
     modMask = mod4Mask
@@ -28,10 +30,14 @@ main = xmonad $ ewmhFullscreen $ ewmh xfceConfig {
     , terminal = "x-terminal-emulator"    
 }
 
-myLayouts = hiddenWindows (avoidStruts $ id
+-- myLayouts = hiddenWindows (avoidStruts $ id
+--         . mkToggle (single  FULL)
+--         . mkToggle (single MIRROR)
+--         $ resizable_tall) 
+myLayouts = avoidStruts $ id
         . mkToggle (single  FULL)
         . mkToggle (single MIRROR)
-        $ resizable_tall) 
+        $ resizable_tall        
     ||| noBorders Full
       where
         resizable_tall = ResizableTall num_master scroll_step frac []
@@ -39,15 +45,15 @@ myLayouts = hiddenWindows (avoidStruts $ id
         scroll_step = 2 % 100
         frac = 3 % 5
 
-myManageHook = composeAll
+myManageHook = composeAll $
     [ isFullscreen --> doFullFloat
-    , isDialog --> doCenterFloat
+      , isDialog --> doCenterFloat
     ]
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList
     [     ((modm .|. shiftMask, xK_l), spawn "slock")
-        , ((modm              , xK_x), withFocused hideWindow)
-        , ((modm .|. shiftMask, xK_x), popOldestHiddenWindow)
+--        , ((modm              , xK_x), withFocused hideWindow)
+--        , ((modm .|. shiftMask, xK_x), popNewestHiddenWindow)
         , ((modm              , xK_y), sendMessage MirrorShrink)
         , ((modm              , xK_a), sendMessage MirrorExpand)
         , ((modm .|. shiftMask, xK_g), gotoMenu)
